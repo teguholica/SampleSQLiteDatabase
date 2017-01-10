@@ -9,10 +9,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by teguholica on 09/01/2017.
- */
-
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
@@ -73,7 +69,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public List<Contact> getAllContacts() {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDatabase();
 
         List<Contact> contactList = new ArrayList<>();
 
@@ -89,35 +85,41 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
 
-        db.close();
         cursor.close();
+        db.close();
 
         return contactList;
     }
 
     public int getContactsCount() {
+        int count;
         String countQuery = "SELECT  * FROM " + TABLE_CONTACTS;
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
+        count = cursor.getCount();
         cursor.close();
+        db.close();
 
-        return cursor.getCount();
+        return count;
     }
 
     public int updateContact(Contact contact) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(KEY_NAME, contact.getName());
         values.put(KEY_PH_NO, contact.getPhoneNumber());
 
-        // updating row
-        return db.update(TABLE_CONTACTS, values, KEY_ID + " = ?",
+        int result = db.update(TABLE_CONTACTS, values, KEY_ID + " = ?",
                 new String[] { String.valueOf(contact.getId())});
+
+        db.close();
+
+        return result;
     }
 
     public void deleteContact(Contact contact) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_CONTACTS, KEY_ID + " = ?",
                 new String[] { String.valueOf(contact.getId()) });
         db.close();
